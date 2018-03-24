@@ -8,7 +8,6 @@ Send /start to initiate the conversation.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
-
 from spoonacular import spoonacular_recipe
 from api_call import spoonacular_api_call
 from string_correction import correct_string
@@ -29,14 +28,15 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING,DECISION, TYPING_REPLY, TYPING_CHOICE = range(4)
+CHOOSING,TYPING_REPLY, TYPING_CHOICE = range(3)
 
 menu_keyboard = [['Start Recipe', 'Help'],
                   ['Exit'],
                   ]
 markup = ReplyKeyboardMarkup(menu_keyboard,one_time_keyboard=True)
-choose_keyboard = [['Yes'],[ 'No']]              
-markup2 = ReplyKeyboardMarkup(choose_keyboard, one_time_keyboard=True)
+
+
+
 
 
 def start(bot, update):
@@ -49,19 +49,17 @@ def start(bot, update):
 
 def regular_choice(bot, update, user_data):
 	
-	update.message.reply_text('Give me the ingredients separate with commas')
-	return TYPING_REPLY
+    update.message.reply_text('Give me the ingredients separate with commas')
+    return TYPING_REPLY
 
 
 
 def received_information(bot, update,user_data):
-	user = update.message.from_user
-	logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
+    user = update.message.from_user
+    logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
 	#ingredients.append(update.message.text)
-#cridar funcio spoonacular i enviarli update.message.text com a parametre
-	i=str(update.message.text)
-	#update.message.reply_text('SEND RECIPE')
-	ingredient_list =ing.split(', ')
+    ing = str(update.message.text)
+    ingredient_list =ing.split(', ')
 
     for i in range(0,len(ingredient_list)-1)
         correct_word = correct_string(ingredient_list[i])
@@ -72,23 +70,39 @@ def received_information(bot, update,user_data):
         else :
 
     
+    
+    
+    
+    
+    
+    
+    
     recipe_title = spoonacular_recipe(ing)
 
     update.message.reply_text(recipe_title)
+	
 
 
-	return CHOOSING
+
+
+    return CHOOSING
+
+
+	
+	
+	
+
 
 def hel (bot,update,user_data):
 
-	update.message.reply_text("ayuudaaaameee")
+	update.message.reply_text("HELP SECTION")
 	return CHOOSING
 
 
 
 def done(bot, update, user_data):
-	
-    update.message.reply_text("I hope I was useful.""Until next time!")
+    
+    update.message.reply_text("Until next time!")
 
     user_data.clear()
     return ConversationHandler.END
@@ -110,19 +124,14 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
 
-          states={
+        states={
             CHOOSING: [RegexHandler('^Start Recipe$',
                                     regular_choice,
                                     pass_user_data=True),
-                       RegexHandler('^Help$', 
-                                    hel,pass_user_data=True)
-
-           
-                       ],
-            DECISION: [RegexHandler('^Si$',regular_choice,pass_user_data=True),
-                       RegexHandler('^No$',done,pass_user_data=True),
-                       ],
-
+                       MessageHandler('^Help$',
+                                    hel,pass_user_data=True),
+		      ],
+	    
             TYPING_CHOICE: [MessageHandler(Filters.text,
                                            regular_choice,
                                            pass_user_data=True),
@@ -136,7 +145,6 @@ def main():
 
         fallbacks=[RegexHandler('^Exit$', done, pass_user_data=True)]
     )
-
 
     dp.add_handler(conv_handler)
 
