@@ -33,11 +33,6 @@ def correct_string (ingredients_list, bot, update,user_data,markup2):
             # ingredient_final = ingredient_dicctionari[0]["name"]
             ingredient_final = 'tomato'
             
-
-
-
-
-
             #******************** This part of the code does not work by the moment. ******************
             quest = "Do you mean " + str(ingredient_final) + "? [Y/N]" 
             update.message.reply_text(quest, reply_markup = markup2, force_reply=True, selective=True)
@@ -46,6 +41,8 @@ def correct_string (ingredients_list, bot, update,user_data,markup2):
             user = update.message.from_user
             time.sleep(10)             
             updates = bot.get_updates()
+
+            ####It would be perfect to get the answer here --> YES or NO... It does not work
             print([u.message.text for u in updates])
             print 'Algoooooo  ' + str((update.message.text))            
             print 'Algoooooo1  ' + str((update.message.text))
