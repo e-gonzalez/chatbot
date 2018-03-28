@@ -20,7 +20,6 @@ import requests
 import ast
 import enchant
 import json
-import ast
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,10 +32,10 @@ CHOOSING,TYPING_REPLY, TYPING_CHOICE = range(3)
 menu_keyboard = [['Start Recipe', 'Help'],
                   ['Exit'],
                   ]
+boolean_answer = [['YES','NO']]
+
+markup2 = ReplyKeyboardMarkup(boolean_answer,one_time_keyboard=True)
 markup = ReplyKeyboardMarkup(menu_keyboard,one_time_keyboard=True)
-
-
-
 
 
 def start(bot, update):
@@ -46,51 +45,32 @@ def start(bot, update):
 
     return CHOOSING
 
-
 def regular_choice(bot, update, user_data):
 	
     update.message.reply_text('Give me the ingredients separate with commas')
+
     return TYPING_REPLY
 
 
 
 def received_information(bot, update,user_data):
     user = update.message.from_user
+    
     logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
-	#ingredients.append(update.message.text)
+	
+    #ingredients.append(update.message.text)
     ing = str(update.message.text)
-    ingredient_list =ing.split(', ')
+    ingredient_list =ing.split(', ')   
 
-    for i in range(0,len(ingredient_list)-1)
-        correct_word = correct_string(ingredient_list[i])
-
-        if correct_word == 'ok':
-            print 'The ingredient {} is OK'.format(ingredient_list[i])
-        
-        else :
-
-    
-    
-    
-    
-    
-    
-    
-    
-    recipe_title = spoonacular_recipe(ing)
-
-    update.message.reply_text(recipe_title)
+    #********************String correction****************
+    correct_string(ingredient_list, bot, update,user_data, markup2)
+    print 'Toy aquiiii'
+   
+    #*********Spoonacular get recipe****************
+    # recipe_title = spoonacular_recipe(ing)
+  
 	
-
-
-
-
     return CHOOSING
-
-
-	
-	
-	
 
 
 def hel (bot,update,user_data):
