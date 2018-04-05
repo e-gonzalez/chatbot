@@ -3,9 +3,9 @@ import json
 import ast
 from api_call import spoonacular_api_call
 
-def spoonacular_recipe(ingredients):
+def spoonacular_recipe(ingredient_list):
     token = "YHvCM9V4j6mshPALYJaOfAvCgZJWp1jiSoOjsn93w0PY8v7ibw"
-    ingredient_list =ingredients.split(', ')
+    #ingredient_list =ingredients.split(', ')
     ingredient = '%2C'.join(ingredient_list)
     num_recipes = 1
     url = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/findByIngredients?"

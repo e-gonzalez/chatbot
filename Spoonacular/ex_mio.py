@@ -10,7 +10,9 @@ bot.
 """
 from spoonacular import spoonacular_recipe
 from api_call import spoonacular_api_call
-from string_correction import correct_string
+#from string_correction import correct_string
+from string_correction2 import correct_string2
+from string_correction2 import quick_check
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
                           ConversationHandler)
@@ -27,15 +29,19 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING,TYPING_REPLY, TYPING_CHOICE = range(3)
+CHOOSING,TYPING_REPLY, TYPING_CHOICE, MORE, QUICK_CHECKER, GET_RECIPE = range(6)
 
 menu_keyboard = [['Start Recipe', 'Help'],
                   ['Exit'],
                   ]
-boolean_answer = [['YES','NO']]
+boolean_answer = [['Yes','No']]
 
 markup2 = ReplyKeyboardMarkup(boolean_answer,one_time_keyboard=True)
 markup = ReplyKeyboardMarkup(menu_keyboard,one_time_keyboard=True)
+
+ingr_list_client = []
+ingr_correct = []
+ingr_correction = []
 
 
 def start(bot, update):
@@ -46,39 +52,141 @@ def start(bot, update):
     return CHOOSING
 
 def regular_choice(bot, update, user_data):
-	
     update.message.reply_text('Give me the ingredients separate with commas')
-
     return TYPING_REPLY
 
+def more(bot, update,user_data):
+    user = update.message.from_user
+    logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
+    if(update.message.text == 'Yes'):
+        update.message.reply_text('OK, we correct it for you! :)')
+        ingr_correct.append(ingr_correction[0])
+        ingr_correction.remove(ingr_correction[0])
+        ingr_list_client.remove(ingr_list_client[0])
+        
+        if len(ingr_correction) > 0:
+            message = "Do you mean " + str(ingr_correction[0]) + ' when you said ' + str(ingr_list_client[0]) + '?'  
+            update.message.reply_text(message, reply_markup=markup2) 
+            #update.message.reply_text(ingr_bad, reply_markup=markup2)
+            return MORE
+        else :
+            message = 'Your ingredient/s is/are '
+
+            for i in range (0,len(ingr_correct)-1):
+                if i == (len(ingr_correct)-2):
+                    message = message + str(ingr_correct[i]) + ' and '
+                else :
+                    message = message + str(ingr_correct[i]) + ', '
+            message = message + str (ingr_correct[len(ingr_correct)-1]) + '? '
+            update.message.reply_text(message, reply_markup=markup2)
+            return GET_RECIPE
+
+    else:
+        message = 'Can you write ' + str(ingr_list_client[0]) + ' again, please?'
+        update.message.reply_text(message)
+        return QUICK_CHECKER
+
+def quick_checker (bot, update,user_data):
+    user = update.message.from_user
+    ing = str(update.message.text)
+    corrector = quick_check(ing)
+    print 'Estic al quick checker'
+    print '\n\n'
+
+    if corrector == True : 
+        update.message.reply_text('Great, we change it :)')
+        ingr_correct.append(ing)
+        ingr_correction.remove(ingr_correction[0])
+        ingr_list_client.remove(ingr_list_client[0])
+    
+    else :
+        message = 'We are sorry. We could not fine ' + str(ing) + ' as an ingredient. We will deleate this one.'
+        update.message.reply_text(message)
+        ingr_correction.remove(ingr_correction[0])
+        ingr_list_client.remove(ingr_list_client[0])
+
+            
+    if len(ingr_correction) > 0:
+        message = "Do you mean " + str(ingr_correction[0]) + ' when you said ' + str(ingr_list_client[0]) + ' ?'  
+        update.message.reply_text(message, reply_markup=markup2) 
+        #update.message.reply_text(ingr_bad, reply_markup=markup2)
+        return MORE
+    
+    else :
+        message = 'Your ingredient/s is/are '
+        for i in range (0,len(ingr_correct)-1):
+            if i == (len(ingr_correct)-2):
+                message = message + str(ingr_correct[i])+ ' and '
+            else :
+                message = message + str(ingr_correct[i]) + ', '
+            
+        message = message + str (ingr_correct[len(ingr_correct)-1]) + ' ? '
+        update.message.reply_text(message, reply_markup=markup2)
+        return GET_RECIPE
 
 
 def received_information(bot, update,user_data):
-    user = update.message.from_user
+    for o in range(0,len(ingr_list_client)):
+        ingr_list_client.remove(ingr_list_client[0])
+        ingr_correction.remove(ingr_correction[0])
     
+    for k in range(0,len(ingr_correct)):
+        print k
+        ingr_correct.remove(ingr_correct[0])
+
+    #if len(ingr_correct)>0:
+    user = update.message.from_user
     logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
-	
-    #ingredients.append(update.message.text)
     ing = str(update.message.text)
     ingredient_list =ing.split(', ')   
-
-    #********************String correction****************
-    correct_string(ingredient_list, bot, update,user_data, markup2)
-    print 'Toy aquiiii'
-   
-    #*********Spoonacular get recipe****************
-    # recipe_title = spoonacular_recipe(ing)
+    new_state, ingr_correct1, ingr_correction1, ingr_list_client1 = correct_string2(ingredient_list, bot, update,user_data, markup2)
+    
+    for i in range(0,len(ingr_correct1)):
+        ingr_correct.append(ingr_correct1[i])
+    
+    for j in range(0,len(ingr_list_client1)):
+        ingr_list_client.append(ingr_list_client1[j])
+        ingr_correction.append(ingr_correction1[j])
   
-	
-    return CHOOSING
+    if new_state == False:
+        return MORE
+    else :
+        message = 'Your ingredient/s is/are '
+        for i in range (0,len(ingr_correct)-1):
+            if i == (len(ingr_correct)-2):
+                message = message + str(ingr_correct[i])+ ' and '
+            else :
+                message = message + str(ingr_correct[i]) + ', '
 
+        message = message + str (ingr_correct[len(ingr_correct)-1]) + '? '
+        update.message.reply_text(message, reply_markup=markup2)
+        return GET_RECIPE
+        
+
+def get_recipe (bot,update,user_data):
+    user = update.message.from_user
+    logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
+    message2 = 'What would you like to do know?'
+    
+    if(update.message.text == 'Yes'):
+        #*********************¡¡¡¡¡¡¡ Aquí es fa una crida a spoonacular !!!!!!****************
+        recipe_title = spoonacular_recipe(ingr_correct)
+        message = 'With the list of ingredient given, you can prepair this delicious recipe: ' + str(recipe_title)
+        update.message.reply_text(message)
+        user_data.clear()
+        update.message.reply_text(message2, reply_markup = markup)
+    
+    else:
+        message = 'Sorry, we did not undersant you. ' + message2
+        user_data.clear()
+        update.message.reply_text(message, reply_markup = markup)
+
+    return CHOOSING
 
 def hel (bot,update,user_data):
 
 	update.message.reply_text("HELP SECTION")
 	return CHOOSING
-
-
 
 def done(bot, update, user_data):
     
@@ -121,6 +229,26 @@ def main():
                                           received_information,
                                           pass_user_data=True),
                            ],
+            MORE: [RegexHandler('^Yes$',
+                                more,
+                                pass_user_data=True),
+                  RegexHandler('^No$',
+                              more,
+                              pass_user_data=True),
+                            ],
+            QUICK_CHECKER: [MessageHandler(Filters.text,
+                                           quick_checker,
+                                           pass_user_data=True),
+                            ],
+            GET_RECIPE: [RegexHandler('^Yes$',
+                                get_recipe,
+                                pass_user_data=True),
+                   RegexHandler('^No$',
+                              get_recipe,
+                              pass_user_data=True),
+                            ],
+
+
         },
 
         fallbacks=[RegexHandler('^Exit$', done, pass_user_data=True)]
