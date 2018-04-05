@@ -25,8 +25,8 @@ def correct_string2 (ingredient_list, bot, update, user_data, markup2):
         correction(i, ingredient_list, bot, update, user_data)
     
     if len(ingr_correction) > 0:
-        message = "We have found that you have written " + str(len(ingr_correction)) + ' ingredient(s) incorrect.'
-        message2 = 'Do you mean  ' + str(ingr_correction[0]) + ' when you said ' + str(ingr_list_client[0]) + ' ?'  
+        message = str(len(ingr_correction)) + ' ingredient(s) on your list is/are misspelled.'
+        message2 = 'Did you mean ' + str(ingr_correction[0]) + ' when you said ' + str(ingr_list_client[0]) + '?'  
         update.message.reply_text(message) 
         update.message.reply_text(message2, reply_markup=markup2)
         return False, ingr_correct, ingr_correction, ingr_list_client
@@ -36,7 +36,6 @@ def correct_string2 (ingredient_list, bot, update, user_data, markup2):
 
 
 def correction(num_list, ingredients_list, bot, update, user_data):
-      #********************String correction****************
   correct_word = quick_check(ingredients_list[num_list])
     
   if correct_word == True :
@@ -46,12 +45,10 @@ def correction(num_list, ingredients_list, bot, update, user_data):
   else :
       
         ingr_list_client.append(ingredients_list[num_list])
-        print 'The ingredient {} is not founs... WAIT \n'.format(ingredients_list[num_list])
         url = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/food/ingredients/autocomplete?"
         parameters = {
                 'query':ingredients_list[num_list]
                 }
-        #*********************¡¡¡¡¡¡¡ Aquí es fa una crida a spoonacular !!!!!!****************
         ingredient_correct = spoonacular_api_call('Get', url, token, parameters)
         ingredient_correct_json = str(ingredient_correct.json())
         ingredient_name = ingredient_correct_json[1:-1]
