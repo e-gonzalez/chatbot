@@ -29,15 +29,17 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING,TYPING_REPLY, TYPING_CHOICE, MORE, QUICK_CHECKER, GET_RECIPE = range(6)
+CHOOSING,TIPUS, TYPING_REPLY, TYPING_CHOICE, MORE, QUICK_CHECKER, GET_RECIPE = range(7)
 
 menu_keyboard = [['Start Recipe', 'Help'],
                   ['Exit'],
                   ]
 boolean_answer = [['Yes','No']]
+type_keyboard = [['Written'],['Images']]
 
+markup = ReplyKeyboardMarkup(menu_keyboard, one_time_keyboard=True)
 markup2 = ReplyKeyboardMarkup(boolean_answer,one_time_keyboard=True)
-markup = ReplyKeyboardMarkup(menu_keyboard,one_time_keyboard=True)
+markup3 = ReplyKeyboardMarkup(type_keyboard, one_time_keyboard=True)
 
 ingr_list_client = []
 ingr_correct = []
@@ -45,11 +47,18 @@ ingr_correction = []
 
 
 def start(bot, update):
-    update.message.reply_text("Hi! My name is Doctor Botter.  "
+    update.message.reply_text("Hi! My name is Chat.  "
         "What do you want to do?",
         reply_markup=markup)
 
     return CHOOSING
+def tipus (bot, update, user_data):
+    update.message.reply_text('Do you want to write or to send a photo of the ingredients?', reply_markup=markup3)
+    return TIPUS
+
+def foto_choice(bot, update, user_data):
+    update.message.reply_text('COMING SOON! Select Written for a recipe', reply_markup=markup3)
+    return TIPUS
 
 def regular_choice(bot, update, user_data):
     update.message.reply_text('Give me the ingredients separated with commas')
@@ -184,12 +193,12 @@ def get_recipe (bot,update,user_data):
 
 def hel (bot,update,user_data):
 
-	update.message.reply_text("HELP SECTION")
+	update.message.reply_text("We are students from UPC. We are creating a chatbot to help you to elaborate your best meals ever. If you want to try, just select Start Recipe. Otherwise, choose Exit", reply_markup=markup)
 	return CHOOSING
 
 def done(bot, update, user_data):
     
-    update.message.reply_text("Until next time!")
+    update.message.reply_text("I hope I was useful. Until next time!")
 
     user_data.clear()
     return ConversationHandler.END
@@ -213,11 +222,14 @@ def main():
 
         states={
             CHOOSING: [RegexHandler('^Start Recipe$',
-                                    regular_choice,
+                                    tipus,
                                     pass_user_data=True),
-                       MessageHandler('^Help$',
+                       RegexHandler('^Help$',
                                     hel,pass_user_data=True),
 		      ],
+            TIPUS: [RegexHandler('^Written$',regular_choice,pass_user_data=True),
+                    RegexHandler('^Images$',foto_choice,pass_user_data=True),
+                    ],
 	    
             TYPING_CHOICE: [MessageHandler(Filters.text,
                                            regular_choice,
@@ -250,7 +262,7 @@ def main():
 
         },
 
-        fallbacks=[RegexHandler('^Exit$', done, pass_user_data=True)]
+                fallbacks=[RegexHandler('^Exit$', done, pass_user_data=True)]
     )
 
     dp.add_handler(conv_handler)
