@@ -79,16 +79,28 @@ def more(bot, update,user_data):
             #update.message.reply_text(ingr_bad, reply_markup=markup2)
             return MORE
         else :
-            message = 'Is/Are your ingredient/s '
+            if len(ingr_correct) > 0:
+                if(len(ingr_correct) >1):
+                    message = 'Are your ingredients '
+                else:
+                    message = 'Is your ingredient '
 
-            for i in range (0,len(ingr_correct)-1):
-                if i == (len(ingr_correct)-2):
-                    message = message + str(ingr_correct[i]) + ' and '
-                else :
-                    message = message + str(ingr_correct[i]) + ', '
-            message = message + str (ingr_correct[len(ingr_correct)-1]) + '? '
-            update.message.reply_text(message, reply_markup=markup2)
-            return GET_RECIPE
+                for i in range (0,len(ingr_correct)-1):
+                    if i == (len(ingr_correct)-2):
+                    	message = message + str(ingr_correct[i]) + ' and '
+                    else :
+                        message = message + str(ingr_correct[i]) + ', '
+            	message = message + str (ingr_correct[len(ingr_correct)-1]) + '? '
+            	update.message.reply_text(message, reply_markup=markup2)
+            	return GET_RECIPE
+
+            else:
+                message = 'Sorry, we could not give you a recipe because we could not find any ingredient.'
+                message2 = 'What would you like to do?'
+                user_data.clear()
+                update.message.reply_text(message)    
+                update.message.reply_text(message2, reply_markup = markup)
+                return CHOOSING
 
     else:
         message = 'Could you write it again, please?'
@@ -120,16 +132,27 @@ def quick_checker (bot, update,user_data):
         return MORE
     
     else :
-        message = 'Is/are your ingredient/s '
-        for i in range (0,len(ingr_correct)-1):
-            if i == (len(ingr_correct)-2):
-                message = message + str(ingr_correct[i])+ ' and '
-            else :
-                message = message + str(ingr_correct[i]) + ', '
-            
-        message = message + str (ingr_correct[len(ingr_correct)-1]) + ' ? '
-        update.message.reply_text(message, reply_markup=markup2)
-        return GET_RECIPE
+        if len(ingr_correct) > 0:
+            if(len(ingr_correct) >1):
+                message = 'Are your ingredients '
+            else:
+                message = 'Is your ingredient '
+            for i in range (0,len(ingr_correct)-1):
+                if i == (len(ingr_correct)-2):
+                  	message = message + str(ingr_correct[i]) + ' and '
+                else :
+                    message = message + str(ingr_correct[i]) + ', '
+            message = message + str (ingr_correct[len(ingr_correct)-1]) + '? '
+            update.message.reply_text(message, reply_markup=markup2)
+            return GET_RECIPE
+
+        else: 
+            message = 'Sorry, we could not give you a recipe because we could not find any ingredient.'
+            message2 = 'What would you like to do?'
+            user_data.clear()
+            update.message.reply_text(message)    
+            update.message.reply_text(message2, reply_markup = markup)
+            return CHOOSING
 
 
 def received_information(bot, update,user_data):
@@ -141,7 +164,6 @@ def received_information(bot, update,user_data):
         print k
         ingr_correct.remove(ingr_correct[0])
 
-    #if len(ingr_correct)>0:
     user = update.message.from_user
     logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
     ing = str(update.message.text)
@@ -155,20 +177,26 @@ def received_information(bot, update,user_data):
         ingr_list_client.append(ingr_list_client1[j])
         ingr_correction.append(ingr_correction1[j])
   
-    if new_state == False:
+    if new_state == 'more':
         return MORE
+    elif new_state == 'write_again':
+        return QUICK_CHECKER
     else :
-        message = 'Is/are your ingredient/s '
+
+        if(len(ingr_correct) >1):
+            message = 'Are your ingredients '
+        else:
+            message = 'Is your ingredient '
         for i in range (0,len(ingr_correct)-1):
             if i == (len(ingr_correct)-2):
-                message = message + str(ingr_correct[i])+ ' and '
+              	message = message + str(ingr_correct[i]) + ' and '
             else :
                 message = message + str(ingr_correct[i]) + ', '
-
         message = message + str (ingr_correct[len(ingr_correct)-1]) + '? '
         update.message.reply_text(message, reply_markup=markup2)
-        return GET_RECIPE
-        
+        return GET_RECIPE     
+
+
 
 def get_recipe (bot,update,user_data):
     user = update.message.from_user

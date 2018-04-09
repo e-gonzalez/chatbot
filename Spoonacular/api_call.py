@@ -2,7 +2,9 @@ import json
 import requests
 import urllib
 
-def spoonacular_api_call( method, url, token, parameters):
+token = "YHvCM9V4j6mshPALYJaOfAvCgZJWp1jiSoOjsn93w0PY8v7ibw"
+
+def spoonacular_api_call( method, url, parameters):
     #Param payload es para los 'POST'
     """
     :param instruction:
@@ -16,12 +18,13 @@ def spoonacular_api_call( method, url, token, parameters):
     headers = {"X-Mashape-Key": token,
                'Accept': 'application/json',
                 }
-    
-    encoded_parameters = urllib.urlencode(parameters)
-    url = url + encoded_parameters
+        
     if method.upper() == 'GET':
+        encoded_parameters = urllib.urlencode(parameters)
+        url = url + encoded_parameters
         response = requests.get(url, headers=headers)
 
-    # else: #method.upper() == 'POST':
-    #     response = requests.post(url, headers=headers, data=json.dumps(payload), params=parameters)
+    else : #method.upper() == 'POST':
+        response = requests.post(url, headers=headers, params=parameters)
+    
     return response

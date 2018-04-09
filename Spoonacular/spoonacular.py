@@ -4,7 +4,6 @@ import ast
 from api_call import spoonacular_api_call
 
 def spoonacular_recipe(ingredient_list):
-    token = "YHvCM9V4j6mshPALYJaOfAvCgZJWp1jiSoOjsn93w0PY8v7ibw"
     #ingredient_list =ingredients.split(', ')
     ingredient = '%2C'.join(ingredient_list)
     num_recipes = 1
@@ -13,10 +12,10 @@ def spoonacular_recipe(ingredient_list):
                 'fillIngredients': 'false',
                 'limitLicense': 'false',
                 'number': num_recipes,
-                'ranking':1
+                #'ranking':1
                 }
 
-    recipe = spoonacular_api_call('GET', url, token, parameters)
+    recipe = spoonacular_api_call('GET', url, parameters)
     recipe_json = str(recipe.json())
     recipe_detail = recipe_json[1:-1]
     recipe_dicctionari = ast.literal_eval(recipe_detail)
