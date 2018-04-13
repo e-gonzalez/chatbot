@@ -37,9 +37,18 @@ menu_keyboard = [['Start Recipe', 'Help'],
 boolean_answer = [['Yes','No']]
 type_keyboard = [['Written'],['Images']]
 
+num_keyboard = [['2','3'],['4','5']]
+recipe2 = ['1','2']
+recipe3 = ['1','2','3']
+recipe4 = ['1','2','3','4']
+recipe5 = ['1','2','3','4','5']
+
 markup = ReplyKeyboardMarkup(menu_keyboard, one_time_keyboard=True)
 markup2 = ReplyKeyboardMarkup(boolean_answer,one_time_keyboard=True)
 markup3 = ReplyKeyboardMarkup(type_keyboard, one_time_keyboard=True)
+markup4 = ReplyKeyboardMarkup(num_keyboard, one_time_keyboard=True)
+markup_recipe2 = ReplyKeyboardMarkup(recipe2, one_time_keyboard=True)
+
 
 ingr_list_client = []
 ingr_correct = []
@@ -197,27 +206,31 @@ def received_information(bot, update,user_data):
         return GET_RECIPE     
 
 
-
 def get_recipe (bot,update,user_data):
     user = update.message.from_user
+    answer = update.message.text
     logger.info("Ingredients of %s: %s", user.first_name, update.message.text)
     message2 = 'What would you like to do?'
     
-    if(update.message.text == 'Yes'):
-        #*********************¡¡¡¡¡¡¡ Aquí es fa una crida a spoonacular !!!!!!****************
-        recipe_title = spoonacular_recipe(ingr_correct)
-        message = 'These ingredients are ideal to prepair a delicious ' + str(recipe_title)
-        update.message.reply_text(message)
-        user_data.clear()
-        
-    
-    else:
+    if(answer == 'Yes'):
+        message = 'Great, we have all the ingredients. We can offer you many different recipes. How many would you like to get?'
+        update.message.reply_text(message, reply_markup=markup4)
+        return GET_RECIPE
+
+    elif(answer == 'No'):
         message = 'Sorry, we could not give you a recipe.'
         user_data.clear()
         update.message.reply_text(message)
-        
-    update.message.reply_text(message2, reply_markup = markup)
-    return CHOOSING
+        update.message.reply_text(message2, reply_markup = markup)
+        return CHOOSING
+    else:
+        #*********************¡¡¡¡¡¡¡ Aquí es fa una crida a spoonacular !!!!!!****************
+        recipe_title = spoonacular_recipe(ingr_correct, answer)
+        message = 'These ingredients are ideal to prepair a delicious ' + str(recipe_title)
+        update.message.reply_text(message)
+        user_data.clear()
+        update.message.reply_text(message2, reply_markup = markup)
+        return CHOOSING
 
 def hel (bot,update,user_data):
 
@@ -286,8 +299,6 @@ def main():
                               get_recipe,
                               pass_user_data=True),
                             ],
-
-
         },
 
                 fallbacks=[RegexHandler('^Exit$', done, pass_user_data=True)]
