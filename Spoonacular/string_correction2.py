@@ -30,10 +30,17 @@ def correct_string2 (ingredient_list, bot, update, user_data, markup2):
             return 'write_again', ingr_correct, ingr_correction, ingr_list_client
 
         else: 
-            message = str(len(ingr_correction)) + ' ingredient(s) on your list is/are misspelled.'
-            message2 = 'Did you mean ' + str(ingr_correction[0]) + ' when you said ' + str(ingr_list_client[0]) + '?'  
-            update.message.reply_text(message) 
-            update.message.reply_text(message2, reply_markup=markup2)
+            if ingr_correction > 1:
+                message = str(len(ingr_correction)) + ' ingredients on your list are misspelled.'
+                message2 = 'Did you mean ' + str(ingr_correction[0]) + ' when you said ' + str(ingr_list_client[0]) + '?'  
+                update.message.reply_text(message) 
+                update.message.reply_text(message2, reply_markup=markup2)
+            else:
+                message = str(len(ingr_correction)) + ' ingredient on your list is misspelled.'
+                message2 = 'Did you mean ' + str(ingr_correction[0]) + ' when you said ' + str(ingr_list_client[0]) + '?'  
+                update.message.reply_text(message) 
+                update.message.reply_text(message2, reply_markup=markup2)
+            
             return 'more', ingr_correct, ingr_correction, ingr_list_client
 
     else:
