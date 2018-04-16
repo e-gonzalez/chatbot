@@ -13,7 +13,7 @@ def spoonacular_recipe(ingredient_list):
                 'fillIngredients': 'false',
                 'limitLicense': 'false',
                 'number': num_recipes,
-                'ranking':1
+                #'ranking':1
                 }
 
     recipe = spoonacular_api_call('GET', url, token, parameters)
